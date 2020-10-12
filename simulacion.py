@@ -65,14 +65,12 @@ class Cliente():
     def client(env, clients, duration, cajas):
         queue_cajas = cajas[0]
         for caja in cajas:
-            '''
             # mostramos los clientes que vayan llegando a la caja
             if caja.cola == 0:
-                print("")
+                print("Caja %d %s" % (caja.numeros_cajero, ""))
             else:
                 print(emoji.emojize("Caja %d %s" % (caja.numeros_cajero, ":man:"*caja.cola)))
             # verificamos la entrada a la cola
-            '''
             if caja.cola < queue_cajas.cola:
                 queue_cajas = caja
         with queue_cajas.res.request() as req:
@@ -104,7 +102,7 @@ if __name__ == "__main__":
     number_cajas = int(number_cajas)
     cajas = [Cajero(enviroment, number) for number in range(1,number_cajas+1)]
     enviroment.process(Cliente.setup(enviroment, cajas))
-    enviroment.run(until=3600*4)
+    enviroment.run(until=500*2)
     
     #recoremos la cajas
     for caja in cajas:
