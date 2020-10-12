@@ -2,6 +2,7 @@
 import simpy
 import random as rnd
 import numpy as np
+import tableprint as tp
 
 class Distribuciones():
     def exponencial_simulator():
@@ -61,19 +62,17 @@ class Cajero(object):
 # simulacion de la llegada a la tienda del cliente
 class Cliente():
     def client(env, clients, duration, cajas):
-        queue_short = cajas[0]
-        for i in cajas:
-            if i.cola < i.cola:
-                queue_short = i
-        # https://simpy.readthedocs.io/en/latest/api_reference/simpy.resources.html
-        with queue_short.res.request() as req:
-            arrive_client = env.now
-            print("%d: %s hace cola en la caja %d " % (arrive_client, clients, queue_short.numeros_cajero))
-            queue_short.queue()
+        queue_cajas = cajas[0]
+        for caja in cajas:
+            if caja.cola < queue_cajas.cola:
+                queue_cajas = caja
+        with queue_cajas.res.request() as req:
+            arrive = env.now
+            queue_cajas.queue()
             yield req
-            queue_short.attend(duration)
-            time_wait = env.now - arrive_client
-            yield env.process(queue_short.attended(clients, time_wait))
+            queue_cajas.attend(duration)
+            time = env.now - arrive
+            yield env.process(queue_cajas.attended(clients, time))
     
     def setup(env, cajas):
         clients = 0
@@ -87,11 +86,28 @@ class Cliente():
 
 if __name__ == "__main__":
     #print('modelo_simulacion\Scripts\activate.bat')
+    # variables para modelar la simulacion dentro de graficas
+    wait_time = []
+    wait_time_attend = []
+    cliente_served = []
+
     enviroment = simpy.Environment()
     number_cajas = input('Ingrese el numero de las cajas: ')
     number_cajas = int(number_cajas)
-    cajas = [Cajero(enviroment, i) for i in range(1,number_cajas+1)]
+    cajas = [Cajero(enviroment, number) for number in range(1,number_cajas+1)]
     enviroment.process(Cliente.setup(enviroment, cajas))
     enviroment.run(until=3600*4)
+    
+    #recoremos la cajas
+    for caja in cajas:
+        cliente_served.append(caja.client_served)
+        tp.banner('<----CAJERO %d---->' % caja.numeros_cajero)
+        print('El tiempo promedio de un cliente en la cola: %d segundos' % (np.mean(caja.timeout)))
+        print('Número de clientes en la cola: %d' % caja.client_served)
+        total = np.sum(cliente_served)
+        grado = (caja.client_served/total)*100
+        print('Grado de utilización de cada cajero %f:' % grado)
+
+    
 
 
