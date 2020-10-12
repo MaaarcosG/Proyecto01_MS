@@ -3,6 +3,7 @@ import simpy
 import random as rnd
 import numpy as np
 import tableprint as tp
+import emoji
 
 class Distribuciones():
     def exponencial_simulator():
@@ -64,6 +65,14 @@ class Cliente():
     def client(env, clients, duration, cajas):
         queue_cajas = cajas[0]
         for caja in cajas:
+            '''
+            # mostramos los clientes que vayan llegando a la caja
+            if caja.cola == 0:
+                print("")
+            else:
+                print(emoji.emojize("Caja %d %s" % (caja.numeros_cajero, ":man:"*caja.cola)))
+            # verificamos la entrada a la cola
+            '''
             if caja.cola < queue_cajas.cola:
                 queue_cajas = caja
         with queue_cajas.res.request() as req:
@@ -83,7 +92,6 @@ class Cliente():
                 yield env.timeout(1)
                 env.process(Cliente.client(env, 'Client %d' % clients, Distribuciones.exponencial_simulator(), cajas))
 
-
 if __name__ == "__main__":
     #print('modelo_simulacion\Scripts\activate.bat')
     # variables para modelar la simulacion dentro de graficas
@@ -101,13 +109,17 @@ if __name__ == "__main__":
     #recoremos la cajas
     for caja in cajas:
         cliente_served.append(caja.client_served)
-        tp.banner('<----CAJERO %d---->' % caja.numeros_cajero)
+        number = caja.numeros_cajero
+        tp.banner(emoji.emojize(':money_bag: CAJA %d :money_bag:' % number))
         # bug entre más cajero no encuentra el tiempo priomedio en la cola
         print('El tiempo promedio de un cliente en la cola: %d segundos' % (np.mean(caja.timeout)))
-        print('Número de clientes en la cola: %d' % caja.client_served)
+        print('Total de Clientes Atendidos: %d' % caja.client_served)
+        print('Número de clientes en la cola: %d' % caja.cola)
         total = np.sum(cliente_served)
         grado = (caja.client_served/total)*100
         print('Grado de utilización de cada cajero %f:' % grado)
+
+    print(emoji.emojize('Python is :money_bag:'))
 
     
 
