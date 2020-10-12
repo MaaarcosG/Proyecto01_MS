@@ -1,1 +1,3 @@
-#Proyecto01_MS
+# Proyecto01_MS
+* Marcos Gutierrez
+* Fernando Hengstenberg
