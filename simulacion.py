@@ -102,6 +102,7 @@ if __name__ == "__main__":
     for caja in cajas:
         cliente_served.append(caja.client_served)
         tp.banner('<----CAJERO %d---->' % caja.numeros_cajero)
+        # bug entre más cajero no encuentra el tiempo priomedio en la cola
         print('El tiempo promedio de un cliente en la cola: %d segundos' % (np.mean(caja.timeout)))
         print('Número de clientes en la cola: %d' % caja.client_served)
         total = np.sum(cliente_served)
